@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -33,6 +34,7 @@ func main() {
 
 	routerV1 := chi.NewRouter()
 	routerV1.Get("/heathz", handlerReadiness)
+	routerV1.Get("/err", handlerErr)
 	router.Mount("/v1", routerV1)
 
 	srv := &http.Server{
@@ -40,7 +42,7 @@ func main() {
 		Addr:    ":" + portString,
 	}
 
-	fmt.Printf("Server starting on port:%v", portString)
+	fmt.Printf("Server started at %v on port:%v", time.Now(), portString)
 
 	err := srv.ListenAndServe()
 
