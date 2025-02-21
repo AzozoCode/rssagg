@@ -10,10 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerCreateUserFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 
 	type Parameters struct {
 		Name string `json:"name"`
+		URl  string `json:"url"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -27,24 +28,21 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := apiCfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+	feed, err := apiCfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
 		ID:       uuid.New(),
 		Name:     params.Name,
 		CreateAt: time.Now().UTC(),
 		UpdateAt: time.Now().UTC(),
+		Url:      params.URl,
+		UserID:   user.ID,
 	})
 
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error creating user: %v", err))
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error creating user feed: %v", err))
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, databaseUserToUser(user))
+	respondWithJSON(w, http.StatusCreated, databaseUserFeedToFeed(feed))
 	return
 
-}
-
-func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
-	return
 }
