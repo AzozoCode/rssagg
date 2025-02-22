@@ -53,6 +53,6 @@ func (apiCfg *apiConfig) handlerGetUserFeeds(w http.ResponseWriter, r *http.Requ
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error getting user feeds: %v", err))
 		return
 	}
-	respondWithJSON(w, http.StatusOK, feeds)
+	respondWithJSON(w, http.StatusOK, databaseFeedsToFeeds(feeds))
 	return
 }
