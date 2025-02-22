@@ -46,3 +46,13 @@ func (apiCfg *apiConfig) handlerCreateUserFeed(w http.ResponseWriter, r *http.Re
 	return
 
 }
+
+func (apiCfg *apiConfig) handlerGetUserFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := apiCfg.DB.GetFeeds(r.Context())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error getting user feeds: %v", err))
+		return
+	}
+	respondWithJSON(w, http.StatusOK, feeds)
+	return
+}
