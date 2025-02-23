@@ -65,6 +65,9 @@ func main() {
 	routerV1.Post("/users/feeds", apiCfg.authMiddleware(apiCfg.handlerCreateUserFeed))
 	routerV1.Get("/users/feeds", apiCfg.handlerGetUserFeeds)
 	routerV1.Post("/users/feeds/follow", apiCfg.authMiddleware(apiCfg.handlerFeedFollowCreate))
+	routerV1.Get("/users/feeds/follow", apiCfg.authMiddleware(apiCfg.handlerGetUserFeedFollowById))
+	routerV1.Delete("/users/feeds/follow/{feed_id}", apiCfg.authMiddleware(apiCfg.handlerDeleteFeedFollow))
+
 	router.Mount("/v1", routerV1)
 
 	srv := &http.Server{
