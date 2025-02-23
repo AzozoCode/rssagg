@@ -21,6 +21,14 @@ type apiConfig struct {
 
 func main() {
 
+	feed, err := urlToFeed("https://wagslane.dev/index.xml")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(feed)
+
 	godotenv.Load(".env")
 	portString := os.Getenv("PORT")
 
@@ -34,17 +42,21 @@ func main() {
 		log.Fatal("DB_URL is not found in environment")
 	}
 
-	db, err := sql.Open("postgres", dbURL)
+	conn, err := sql.Open("postgres", dbURL)
 
 	if err != nil {
 		log.Fatalf("Error opening database connection. %v", err)
 	}
 
-	defer db.Close()
+	defer conn.Close()
+
+	db := database.New(conn)
 
 	apiCfg := apiConfig{
-		DB: database.New(db),
+		DB: db,
 	}
+
+	go startScraping(db, 10, time.Minute)
 
 	router := chi.NewRouter()
 
@@ -67,6 +79,7 @@ func main() {
 	routerV1.Post("/users/feeds/follow", apiCfg.authMiddleware(apiCfg.handlerFeedFollowCreate))
 	routerV1.Get("/users/feeds/follow", apiCfg.authMiddleware(apiCfg.handlerGetUserFeedFollowById))
 	routerV1.Delete("/users/feeds/follow/{feed_id}", apiCfg.authMiddleware(apiCfg.handlerDeleteFeedFollow))
+	routerV1.Get("/users/posts", apiCfg.authMiddleware(apiCfg.handlerGetUserPosts))
 
 	router.Mount("/v1", routerV1)
 
